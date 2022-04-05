@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
+
+	"github.com/joho/godotenv"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,8 +15,31 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+// init is invoked before main()
+func init() {
+	// loads values from .env into the system
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
+	}
+}
+
 func main() {
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://monsterr:0JYrw9FGAM6ybvNk@cluster0.5cgyh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+
+	// Get the MONGO_DB_LOGIN environment variable
+	mongodbLogin, exists := os.LookupEnv("MONGO_DB_LOGIN")
+
+	if !exists {
+		log.Print("MONGO_DB_LOGIN not found")
+		return
+	}
+	// Get the MONGO_DB_PASS environment variable
+	mongodbPass, exists := os.LookupEnv("MONGO_DB_PASS")
+
+	if !exists {
+		log.Print("MONGO_DB_PASS not found")
+		return
+	}
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://" + mongodbLogin + ":" + mongodbPass))
 	if err != nil {
 		log.Fatal(err)
 	}
